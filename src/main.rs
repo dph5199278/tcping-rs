@@ -21,10 +21,10 @@ struct TcpPing {
     port: u16,
     /// only ipv4
     #[argh(switch, short = '4')]
-    prefer_ipv4: bool,
+    only_ipv4: bool,
     /// only ipv6
     #[argh(switch, short = '6')]
-    prefer_ipv6: bool,
+    only_ipv6: bool,
     /// ping interval (Default 1)
     #[argh(option, short = 'i', default = "1")]
     interval: u64,
@@ -43,7 +43,7 @@ fn main() {
     let args: TcpPing = argh::from_env();
 
     // get ip by domain
-    let ip_result = lookup_ip(args.host.clone(), args.prefer_ipv4, args.prefer_ipv6);
+    let ip_result = lookup_ip(args.host.clone(), args.only_ipv4, args.only_ipv6);
     if let Err(msg) = ip_result {
         // get ip err
         println!("{}", msg);

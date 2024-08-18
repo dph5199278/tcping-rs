@@ -2,7 +2,7 @@ use std::net::IpAddr;
 
 use dns_lookup::lookup_host;
 
-pub fn lookup_ip(host: String, prefer_ipv4: bool, prefer_ipv6: bool) -> Result<IpAddr, String> {
+pub fn lookup_ip(host: String, only_ipv4: bool, only_ipv6: bool) -> Result<IpAddr, String> {
     if let Ok(ip) = host.parse::<IpAddr>() {
         return Ok(ip);
     }
@@ -16,14 +16,14 @@ pub fn lookup_ip(host: String, prefer_ipv4: bool, prefer_ipv6: bool) -> Result<I
     if system_resolver_response.is_empty() {
         return Err(format!("DNS: Could not find host - {:#?}, aborting", host));
     }
-    if (!prefer_ipv4 && !prefer_ipv6) || (prefer_ipv4 && prefer_ipv6) {
+    if (!only_ipv4 && !only_ipv6) || (only_ipv4 && only_ipv6) {
         return Ok(system_resolver_response[0]);
     }
     for ans in system_resolver_response.iter() {
-        if prefer_ipv4 && ans.is_ipv4() {
+        if only_ipv4 && ans.is_ipv4() {
             return Ok(*ans);
         }
-        if prefer_ipv6 && ans.is_ipv6() {
+        if only_ipv6 && ans.is_ipv6() {
             return Ok(*ans);
         }
     }

@@ -30,8 +30,8 @@ Positional Arguments:
   port              target port (Default 80)
 
 Options:
-  -4, --prefer-ipv4 only ipv4
-  -6, --prefer-ipv6 only ipv6
+  -4, --only-ipv4 only ipv4
+  -6, --only-ipv6 only ipv6
   -i, --interval    ping interval (Default 1)
   -t, --timeout     handshake timeout (Default 4)
   -c, --count       stop after sending N pings
