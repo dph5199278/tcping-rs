@@ -1,0 +1,212 @@
+name: releases
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+
+env:
+  RUST_VERSION: 1.75.0
+  RUST_LTO_FLAG: -C embed-bitcode -C lto
+  RUST_OPT_LEVEL_FLAG: -C opt-level=z
+  RUST_CODEGEN_UNITS_FLAG: -C codegen-units=1
+  RUST_STRIP_FLAG: -C link-arg=-Wl,--strip-all
+
+jobs:
+  build-bin-windows:
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        target:
+          - i686-pc-windows-msvc
+          - x86_64-pc-windows-msvc
+          - aarch64-pc-windows-msvc
+        include:
+          - target: i686-pc-windows-msvc
+            name: windows-i686
+            architecture: x86
+          - target: x86_64-pc-windows-msvc
+            name: windows-x86_64
+            architecture: x64
+          - target: aarch64-pc-windows-msvc
+            name: windows-aarch64
+            architecture: arm64
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: install rust toolchain
+        uses: hecrj/setup-rust-action@v2
+        with:
+          rust-version: ${{ env.RUST_VERSION }}
+
+      - name: build
+        run: |
+          rustup target add ${{ matrix.target }}
+          SET RUSTFLAGS="${{ env.RUST_LTO_FLAG }} ${{ env.RUST_OPT_LEVEL_FLAG }} ${{ env.RUST_CODEGEN_UNITS_FLAG }} ${{ env.RUST_STRIP_FLAG }}"
+          cargo build --release --target ${{ matrix.target }}
+
+      - name: rename and compress artifacts
+        run: |
+          move target\${{ matrix.target }}\release\tcping.exe tcping.exe
+          tar -zcf tcping-${{ matrix.name }}.tgz tcping.exe
+
+      - name: upload assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcping-${{ matrix.name }}.tgz
+          path: tcping-${{ matrix.name }}.tgz
+
+  build-bin-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - i686-unknown-linux-gnu
+          - i686-unknown-linux-musl
+          - x86_64-unknown-linux-gnu
+          - x86_64-unknown-linux-musl
+          - armv7-unknown-linux-gnueabi
+          - armv7-unknown-linux-gnueabihf
+          - armv7-unknown-linux-musleabi
+          - armv7-unknown-linux-musleabihf
+          - aarch64-unknown-linux-gnu
+          - aarch64-unknown-linux-musl
+          - s390x-unknown-linux-gnu
+          - powerpc64le-unknown-linux-gnu
+          - riscv64gc-unknown-linux-gnu
+        include:
+          - target: i686-unknown-linux-gnu
+            name: linux-i686-gnu
+          - target: i686-unknown-linux-musl
+            name: linux-i686-musl
+          - target: x86_64-unknown-linux-gnu
+            name: linux-x86_64-gnu
+          - target: x86_64-unknown-linux-musl
+            name: linux-x86_64-musl
+          - target: armv7-unknown-linux-gnueabi
+            name: linux-armv7-gnueabi
+          - target: armv7-unknown-linux-gnueabihf
+            name: linux-armv7-gnueabihf
+          - target: armv7-unknown-linux-musleabi
+            name: linux-armv7-musleabi
+          - target: armv7-unknown-linux-musleabihf
+            name: linux-armv7-musleabihf
+          - target: aarch64-unknown-linux-gnu
+            name: linux-aarch64-gnu
+          - target: aarch64-unknown-linux-musl
+            name: linux-aarch64-musl
+          - target: s390x-unknown-linux-gnu
+            name: linux-s390x-gnu
+          - target: powerpc64le-unknown-linux-gnu
+            name: linux-powerpc64le-gnu
+          - target: riscv64gc-unknown-linux-gnu
+            name: linux-riscv64gc-gnu
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: install rust toolchain
+        uses: hecrj/setup-rust-action@v2
+        with:
+          rust-version: ${{ env.RUST_VERSION }}
+
+      - name: install deps
+        run: |
+          sudo apt update && sudo apt install make -y
+
+      - name: install cross
+        run: |
+          cargo install cross
+
+      - name: build
+        run: |
+          RUSTFLAGS="${{ env.RUST_LTO_FLAG }} ${{ env.RUST_OPT_LEVEL_FLAG }} ${{ env.RUST_CODEGEN_UNITS_FLAG }} ${{ env.RUST_STRIP_FLAG }}" cross build --release --target ${{ matrix.target }}
+
+      - name: rename and compress artifacts
+        run: |
+          mv target/${{ matrix.target }}/release/tcping tcping
+          tar -zcf tcping-${{ matrix.name }}.tgz tcping
+
+      - name: upload assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcping-${{ matrix.name }}.tgz
+          path: tcping-${{ matrix.name }}.tgz
+
+  build-bin-macos:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        target: 
+          - x86_64-apple-darwin
+          - aarch64-apple-darwin
+        include:
+          - target: aarch64-apple-darwin
+            name: darwin-aarch64
+          - target: x86_64-apple-darwin
+            name: darwin-x86_64
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: install rust toolchain
+        uses: hecrj/setup-rust-action@v2
+        with:
+          rust-version: ${{ env.RUST_VERSION }}
+          targets: ${{ matrix.target }}
+
+      - name: install deps
+        run: |
+          brew update
+
+      - name: build
+        run: |
+          RUSTFLAGS="${{ env.RUST_LTO_FLAG }} ${{ env.RUST_OPT_LEVEL_FLAG }} ${{ env.RUST_CODEGEN_UNITS_FLAG }}" cargo build --release --target ${{ matrix.target }}
+
+      - name: rename and compress artifacts
+        run: |
+          mv target/${{ matrix.target }}/release/tcping tcping
+          tar -zcf tcping-${{ matrix.name }}.tgz tcping
+
+      - name: upload assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: tcping-${{ matrix.name }}.tgz
+          path: tcping-${{ matrix.name }}.tgz
+
+  release:
+    needs: [build-bin-windows, build-bin-linux, build-bin-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: download
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+          pattern: tcping-*
+          merge-multiple: true
+      
+      - name: tag
+        run: |
+          echo "version=$(echo ${{ github.ref }} | sed 's/refs\/tags\/(.*)/\1/g')" >> $GITHUB_OUTPUT
+
+      - name: release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          tag_name: ${{ steps.tag.version }}
+          draft: false
+          prerelease: false
+          files: release/*
