@@ -1,3 +1,6 @@
+[![Release](https://img.shields.io/github/v/release/dph5199278/tcping-rs)](https://github.com/dph5199278/tcping-rs/releases/latest)
+[![Release](https://img.shields.io/github/license/dph5199278/tcping-rs)](https://github.com/dph5199278/tcping-rs/blob/main/LICENSE)
+
 # Tcping-rs
 
 Simple utility to ping a TCP port.
