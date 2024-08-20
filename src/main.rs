@@ -25,18 +25,18 @@ struct TcpPing {
     /// only ipv6
     #[argh(switch, short = '6')]
     only_ipv6: bool,
-    /// ping interval (Default 1)
-    #[argh(option, short = 'i', default = "1")]
-    interval: u64,
-    /// handshake timeout (Default 4)
-    #[argh(option, short = 't', default = "4")]
-    timeout: u64,
     /// stop after sending N pings
     #[argh(option, short = 'c')]
     count: Option<usize>,
     /// include date and time on each line
     #[argh(switch, short = 'd')]
     datetime: bool,
+    /// ping interval (Default 1)
+    #[argh(option, short = 'i', default = "1")]
+    interval: u64,
+    /// handshake timeout (Default 2)
+    #[argh(option, short = 't', default = "2")]
+    timeout: u64,
 }
 
 fn main() {

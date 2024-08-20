@@ -23,8 +23,7 @@ Approximate trip times in milli-seconds:
 ## Usage
 ```sh
 > tcping --help
-Usage: tcping <host> [<port>] [-4] [-6] [-i <interval>] [-t <timeout>] [-c <cou
-t>] [-d]
+Usage: tcping <host> [<port>] [-4] [-6] [-c <count>] [-d] [-i <interval>] [-t <timeout>]
 
 TCP ping utility.
 
@@ -33,11 +32,11 @@ Positional Arguments:
   port              target port (Default 80)
 
 Options:
-  -4, --only-ipv4 only ipv4
-  -6, --only-ipv6 only ipv6
-  -i, --interval    ping interval (Default 1)
-  -t, --timeout     handshake timeout (Default 4)
+  -4, --only-ipv4   only ipv4
+  -6, --only-ipv6   only ipv6
   -c, --count       stop after sending N pings
   -d, --datetime    include date and time on each line
+  -i, --interval    ping interval (Default 1)
+  -t, --timeout     handshake timeout (Default 2)
   --help            display usage information
 ```
