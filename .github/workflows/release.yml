@@ -75,6 +75,7 @@ jobs:
           - armv7-unknown-linux-musleabihf
           - aarch64-unknown-linux-gnu
           - aarch64-unknown-linux-musl
+          - loongarch64-unknown-linux-gnu
           - s390x-unknown-linux-gnu
           - powerpc64le-unknown-linux-gnu
           - riscv64gc-unknown-linux-gnu
@@ -99,6 +100,8 @@ jobs:
             name: linux-aarch64-gnu
           - target: aarch64-unknown-linux-musl
             name: linux-aarch64-musl
+          - target: loongarch64-unknown-linux-gnu
+            name: linux-loongarch64-gnu
           - target: s390x-unknown-linux-gnu
             name: linux-s390x-gnu
           - target: powerpc64le-unknown-linux-gnu
@@ -115,10 +118,6 @@ jobs:
         uses: hecrj/setup-rust-action@v2
         with:
           rust-version: ${{ env.RUST_VERSION }}
-
-      - name: install deps
-        run: |
-          sudo apt update && sudo apt install make -y
 
       - name: install cross
         run: |
@@ -162,10 +161,6 @@ jobs:
         with:
           rust-version: ${{ env.RUST_VERSION }}
           targets: ${{ matrix.target }}
-
-      - name: install deps
-        run: |
-          brew update
 
       - name: build
         run: |
