@@ -17,7 +17,7 @@ Ping statistics for 172.217.15.238:80
      4 probes sent.
      4 successful, 0 failed.  (0.00% fail)
 Approximate trip times in milli-seconds:
-     Minimum = 1.533ms, Maximum = 1.089ms, Average = 1.276ms
+     Minimum = 1.089ms, Maximum = 1.533ms, Average = 1.276ms
 ```
 
 ## Usage
