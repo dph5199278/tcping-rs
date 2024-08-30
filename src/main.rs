@@ -89,7 +89,7 @@ fn main() {
     println!("");
     println!("Ping statistics for {}", &addr);
     println!("     {} probes sent.", count);
-    println!("     {} successful, {} failed.  ({:.2}% fail)", success_pings, fail_pings, fail_pings as f32 / count as f32);
+    println!("     {} successful, {} failed.  ({:.2}% fail)", success_pings, fail_pings, (fail_pings * 100) as f32 / count as f32);
     println!("Approximate trip times in milli-seconds:");
     println!("     Minimum = {:.3}ms, Maximum = {:.3}ms, Average = {:.3}ms", min, max, avg);
 
