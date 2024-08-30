@@ -5,10 +5,7 @@ use chrono::Local;
 use std::net::{SocketAddr, TcpStream, Shutdown};
 use std::time::Duration;
 
-mod utils {
-    pub mod net;
-}
-use utils::net::lookup_ip;
+mod utils;
 
 #[derive(FromArgs)]
 /// TCP ping utility.
@@ -43,7 +40,7 @@ fn main() {
     let args: TcpPing = argh::from_env();
 
     // get ip by domain
-    let ip_result = lookup_ip(args.host.clone(), args.only_ipv4, args.only_ipv6);
+    let ip_result = utils::net::lookup_ip(args.host.clone(), args.only_ipv4, args.only_ipv6);
     if let Err(msg) = ip_result {
         // get ip err
         println!("{}", msg);
