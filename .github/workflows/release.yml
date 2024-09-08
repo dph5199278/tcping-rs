@@ -197,12 +197,27 @@ jobs:
         run: |
           echo "version=$(echo ${{ github.ref }} | sed 's/refs\/tags\/(.*)/\1/g')" >> $GITHUB_OUTPUT
 
+      - name: Generate Release Changelog
+        id: "changelog"
+        uses: heinrichreimer/action-github-changelog-generator@v2.4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          onlyLastTag: true
+
       - name: Generate Release Notes
         id: notes
         uses: RedCrafter07/release-notes-action@v1.0.1
         with:
           tag-name: ${{ github.ref }}
           token: ${{ secrets.GH_TOKEN }}
+
+      - name: Make Release Body
+        run: |
+          touch release-body.md
+          echo "${{ steps.changelog.outputs.changelog }}" >> release-body.md
+          echo "" >> release-body.md
+          echo "" >> release-body.md
+          echo "${{ steps.notes.outputs.release-notes }}" >> release-body.md
 
       - name: release
         uses: softprops/action-gh-release@v2
@@ -212,4 +227,4 @@ jobs:
           draft: false
           prerelease: false
           files: release/*
-          body: ${{ steps.notes.outputs.release-notes }}
+          body_path: release-body.md
