@@ -1,6 +1,6 @@
 [package]
 name = "tcping"
-version = "1.0.1"
+version = "1.0.2"
 authors = ["Dely <noreply>"]
 edition = "2018"
 description = "Simple utility to ping a TCP port implementation in Rust"
