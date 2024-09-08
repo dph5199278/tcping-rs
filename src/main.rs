@@ -83,7 +83,7 @@ fn main() {
     }
 
     let count = args.count.unwrap_or(0);
-    let min = list.iter().cloned().fold(f64::INFINITY, f64::min);
+    let min = list.iter().cloned().fold(timeout.as_millis() as f64, f64::min);
     let max = list.iter().cloned().fold(0.0, f64::max);
     let avg = list.iter().sum::<f64>() / list.len() as f64;
     println!("");
