@@ -29,3 +29,13 @@ pub fn lookup_ip(host: String, only_ipv4: bool, only_ipv6: bool) -> Result<IpAdd
     }
     return Err("DNS: No valid host found in AddrInfo for that type".to_string());
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_lookup_ip() {
+      assert_eq!(lookup_ip("google.com".to_string(), false, false).is_ok(), true);
+    }
+}
