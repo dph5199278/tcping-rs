@@ -1,0 +1,138 @@
+name: test
+
+on: 
+  pull_request:
+  merge_group:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  RUST_VERSION: 1.75.0
+  RUST_LTO_FLAG: -C embed-bitcode -C lto
+  RUST_OPT_LEVEL_FLAG: -C opt-level=z
+  RUST_CODEGEN_UNITS_FLAG: -C codegen-units=1
+  RUST_STRIP_FLAG: -C link-arg=-Wl,--strip-all
+
+jobs:
+  test-windows:
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        target:
+          - i686-pc-windows-msvc
+          - x86_64-pc-windows-msvc
+          - aarch64-pc-windows-msvc
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: install rust toolchain
+        uses: hecrj/setup-rust-action@v2
+        with:
+          rust-version: ${{ env.RUST_VERSION }}
+
+      - name: test
+        run: |
+          rustup target add ${{ matrix.target }}
+          SET RUSTFLAGS="${{ env.RUST_LTO_FLAG }} ${{ env.RUST_OPT_LEVEL_FLAG }} ${{ env.RUST_CODEGEN_UNITS_FLAG }} ${{ env.RUST_STRIP_FLAG }}"
+          cargo test --target ${{ matrix.target }}
+
+  test-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - i686-unknown-linux-gnu
+          - i686-unknown-linux-musl
+          - x86_64-unknown-linux-gnu
+          - x86_64-unknown-linux-musl
+          - armv7-unknown-linux-gnueabi
+          - armv7-unknown-linux-gnueabihf
+          - armv7-unknown-linux-musleabi
+          - armv7-unknown-linux-musleabihf
+          - aarch64-unknown-linux-gnu
+          - aarch64-unknown-linux-musl
+          - loongarch64-unknown-linux-gnu
+          - s390x-unknown-linux-gnu
+          - powerpc64le-unknown-linux-gnu
+          - riscv64gc-unknown-linux-gnu
+        include:
+          - target: i686-unknown-linux-gnu
+            name: linux-i686-gnu
+          - target: i686-unknown-linux-musl
+            name: linux-i686-musl
+          - target: x86_64-unknown-linux-gnu
+            name: linux-x86_64-gnu
+          - target: x86_64-unknown-linux-musl
+            name: linux-x86_64-musl
+          - target: armv7-unknown-linux-gnueabi
+            name: linux-armv7-gnueabi
+          - target: armv7-unknown-linux-gnueabihf
+            name: linux-armv7-gnueabihf
+          - target: armv7-unknown-linux-musleabi
+            name: linux-armv7-musleabi
+          - target: armv7-unknown-linux-musleabihf
+            name: linux-armv7-musleabihf
+          - target: aarch64-unknown-linux-gnu
+            name: linux-aarch64-gnu
+          - target: aarch64-unknown-linux-musl
+            name: linux-aarch64-musl
+          - target: loongarch64-unknown-linux-gnu
+            name: linux-loongarch64-gnu
+          - target: s390x-unknown-linux-gnu
+            name: linux-s390x-gnu
+          - target: powerpc64le-unknown-linux-gnu
+            name: linux-powerpc64le-gnu
+          - target: riscv64gc-unknown-linux-gnu
+            name: linux-riscv64gc-gnu
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: install rust toolchain
+        uses: hecrj/setup-rust-action@v2
+        with:
+          rust-version: ${{ env.RUST_VERSION }}
+
+      - name: install cross
+        run: |
+          cargo install cross
+
+      - name: test
+        run: |
+          SET RUSTFLAGS="${{ env.RUST_LTO_FLAG }} ${{ env.RUST_OPT_LEVEL_FLAG }} ${{ env.RUST_CODEGEN_UNITS_FLAG }} ${{ env.RUST_STRIP_FLAG }}"
+          cross test --target ${{ matrix.target }}
+
+  test-macos:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        target: 
+          - x86_64-apple-darwin
+          - aarch64-apple-darwin
+        include:
+          - target: aarch64-apple-darwin
+            os: macos-14
+          - target: x86_64-apple-darwin
+            os: macos-13
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: install rust toolchain
+        uses: hecrj/setup-rust-action@v2
+        with:
+          rust-version: ${{ env.RUST_VERSION }}
+          targets: ${{ matrix.target }}
+
+      - name: test
+        run: |
+          RUSTFLAGS="${{ env.RUST_LTO_FLAG }} ${{ env.RUST_OPT_LEVEL_FLAG }} ${{ env.RUST_CODEGEN_UNITS_FLAG }}"
+          cargo test --target ${{ matrix.target }}
